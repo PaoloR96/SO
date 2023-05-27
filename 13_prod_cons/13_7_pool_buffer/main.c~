@@ -1,0 +1,116 @@
+/*
+ *	Produttore Consumatore pool di buffer (buffer di stato)
+ *
+ *
+ */
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
+#include "lib.h"
+
+int main(){
+
+	//dichiarazione delle variabili
+	key_t chiave_sem;
+	key_t chiave_shm;
+	pid_t pid;
+	Buffer *buffer;
+	BufferStato *bufferStato;
+	int id_sem;
+	int id_shm;
+	int id_bufferStato;
+	int status;
+	int i;
+	int k;
+
+	//assegno le chiavi
+	chiave_sem = IPC_PRIVATE;
+	chiave_shm = IPC_PRIVATE;
+
+	//semafori
+	id_sem = semget(chiave_sem, 4, IPC_CREAT | 0664);
+	semctl(id_sem, MUTEX_PROD, SETVAL, 1);
+	semctl(id_sem, MUTEX_CONS, SETVAL, 1);
+	semctl(id_sem, SPAZIO_DISP, SETVAL, DIM);
+	semctl(id_sem, MSG_DISP, SETVAL, 0);	
+	
+	//memoria condivisa --> buffer e bufferStato
+	id_shm = shmget(chiave_shm, sizeof(Buffer), IPC_CREAT | 0664);
+	id_bufferStato = shmget(chiave_shm, sizeof(BufferStato), IPC_CREAT | 0664);
+	buffer = (Buffer*)shmat(id_shm,0,0);
+	bufferStato = (BufferStato*)shmat(id_bufferStato,0,0);
+
+	//inizializzo buffer e bufferStato
+	for(i=0; i<DIM; i++){
+		buffer->vettore[i] =0;
+		bufferStato ->vettoreStato[i] = VUOTO;	
+	}
+	
+	printf("\n\n INIZIO \n\n");	
+
+	//stampo buffer e bufferStato
+	printf("Stampo Buffer\n");
+	for(i=0; i<DIM; i++){
+		printf(" <%d>\n",buffer->vettore[i]);	
+	}
+	printf("Stampo Buffer di Stato\n");
+	for(i=0; i<DIM; i++){
+		printf(" [%d]\n",bufferStato->vettoreStato[i]);	
+	}
+	
+	printf("\n");
+
+	//creazione processi
+	for(i=0; i<NUM_PROC; i++){
+		pid = fork();
+		srand(time(NULL)^getpid());
+		if(pid == 0){
+			if(i%2 ==0){
+				//Produttore
+				printf("Sono PRODUTTORE pid <%d>\n",getpid());
+				for(k=0; k<NUM_PROD; k++){
+					sleep(1);
+					produttore(id_sem, buffer, bufferStato);
+				}
+			}else{
+				//Consumatore
+				printf("Sono CONSUMATORE pid {%d}\n",getpid());
+				for(k=0; k<NUM_CONS; k++){
+					sleep(2);
+					consumatore(id_sem, buffer, bufferStato);
+				}
+			}
+			_exit(0);
+		}
+	}
+	
+	//attendo temrinazione processi
+	for(k=0; k<NUM_PROC; k++){
+		pid = wait(&status);
+		printf("processo [%d] TERMINATO con stato <%d>\n", pid, status);
+	}
+	
+	//stampo buffer e bufferStato
+	printf("\nStampo Buffer\n");
+	for(i=0; i<DIM; i++){
+		printf(" <%d>\n",buffer->vettore[i]);	
+	}
+	printf("Stampo Buffer di Stato\n");
+	for(i=0; i<DIM; i++){
+		printf(" [%d]\n",bufferStato->vettoreStato[i]);	
+	}
+
+	//rimozione semafori e memoria
+	semctl(id_sem, 0, IPC_RMID);
+	shmctl(id_shm, IPC_RMID, 0);
+	
+	printf("\n\n FINE \n\n");
+
+	return 0;
+}

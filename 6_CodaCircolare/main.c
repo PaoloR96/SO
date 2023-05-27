@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include "mialib.h"
+
+int main(){
+	
+	Coda coda;
+	int scelta, dimensione, valore, flag;
+	
+	flag = 0;
+
+	//stampa(&coda);
+	/*init(&coda,3);
+	push(&coda,5);
+	push(&coda,8);
+	push(&coda,9);
+	stampa(&coda);*/
+
+	while(flag == 0){
+
+		printf("\n\n");
+		printf("(1) inizializza \n");
+		printf("(2) inserisci elemento in coda \n");
+		printf("(3) estrai elemento da testa \n");
+		printf("(4) stampa elemento in testa \n");
+		printf("(5) stampa elemento in coda \n");
+		printf("(0) per uscire \n\n");
+
+		scanf("%d",&scelta);
+
+		switch(scelta){
+			case 1: 
+			printf("\nQuanti elementi vuoi inserire : ");
+			scanf("%d",&dimensione);
+			init(&coda,dimensione);
+			printf("\n\n");
+			break;
+			
+			case 2: 
+			printf("\ninserisci un valore : ");
+			scanf("%d",&valore);
+			push(&coda,valore);
+			printf("\n\n");
+			stampa(&coda);
+			break;
+			
+			case 3: 
+			printf("\n");
+			valore = pop(&coda);
+			if(valore == -1){
+				printf("\nla coda è vuota \n");
+			}else{
+				printf("ho estratto : ");
+				printf("%4d",valore);
+				printf("\n");
+			}
+			stampa(&coda);
+			break;
+			
+			case 4: 
+			top(&coda);
+			printf("\n\n");
+			break;
+			
+			case 5: 
+			down(&coda);
+			printf("\n\n");
+			break;
+			
+			case 0: 
+			flag = 1;
+			break;
+			
+		}
+
+	}
+
+	return 0;
+}

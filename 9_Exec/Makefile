@@ -1,0 +1,15 @@
+all:  start
+
+start:  media somma
+	gcc -g -o start main.c -lm
+
+media:
+	gcc -o media media.c  -lm  
+
+somma:
+	gcc -o somma somma.c -lm
+
+clean:
+	rm -f *.o 
+	rm -f ./start ./media ./somma
+

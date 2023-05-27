@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(){
+
+	double valore;
+	double somma = 0;
+	double media = 0;
+	int i;
+	
+	printf("\n\n  * Programma Media di 4 elementi \n");
+	
+	printf("  * Inserisco valori per calcolare la media : \n");
+	for(i =0; i<5; i++){
+		
+		sleep(1);
+		//scanf("%f",&valore);
+		valore = rand()%21;
+		printf("  * %2f",valore);
+		printf("\n");
+		somma = somma + valore;
+	}
+	
+	media = somma/4;
+	sleep(5);
+	printf("\n\n  * La media e : %f",media);
+	printf("\n\n");
+		
+	return 0;
+}	

@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <stdlib.h>
+
+int main(){
+
+	int valore1, valore2;
+	int pid;
+	int ppid;
+	int status1,status2;
+	
+	/*PADRE*/
+	
+	printf("\n\nSono il padre il mio pid : %d", pid = getpid());
+	printf("\nMi ha generato il programma con pid : %d",ppid = getppid());
+	printf("\n");
+	
+	
+	
+	// faccio la fork
+	valore1 = fork();
+	
+	
+	/*----------------------------------------------------- FIGLIO 1 ------------------------------------------------------------------------------------*/
+	
+	// controllo se sono ruscito a creare il figlio ==0 altrimenti ==-1
+	if(valore1 == 0){
+	
+		/*FILGIO n1*/
+		
+		printf("\n  * Sono il figlio ho pid : %d", pid = getpid());
+		printf("\n  * Mi ha generato il programma con pid : %d",ppid = getppid());
+		printf("\n");
+		
+		sleep(3);
+		
+		// sostituisco il codice del figlio con un altro codice tramite execl() i parametri sono percoso del file, nome del file , NULL
+		execl("./media","media",NULL);
+		
+		// do il controllo al programma chiamante
+		exit(0);
+	}
+	if(valore1 == -1){
+		//se non riesco a creare il figlio mando un messaggio di errore
+		printf("\nErrore creazione figlio \n\n");
+		exit(1);
+	}
+	
+	/*-----------------------------------------------------------------------------------------------------------------------------------------*/
+	sleep(3);
+	
+	// creo un secondo figlio facendo una vfork la differenza dalla fork(), e che non crea una 
+	// copia dei dati del padre ammenochè non andiamo a usare una delle variabili del padre 	
+	valore2 = vfork();
+	
+	/*----------------------------------------------------- FIGLIO 2 --------------------------------------------------------------------------*/
+	if(valore2 == 0){
+		
+		/*FIGLIO 	n2*/
+		printf("\n  ** Sono il figlio ho pid : %d", pid = getpid());
+		printf("\n  ** Mi ha generato il programma con pid : %d",ppid = getppid());
+		printf("\n");
+		
+		execl("./somma","somma",NULL);
+		exit(0);
+	}
+	if(valore2 == -1){
+		printf("\nErrore creazione figlio \n\n");
+		exit(1);
+	}
+	/*-------------------------------------------------------------------------------------------------------------------------------------------*/
+	
+	/*--------------------------------------------------------- WAIT FIGLIO 1 -------------------------------------------------------------------*/
+	// aspetto la terminazione del programa figlio e mi prendo lo stato in cui e terminato
+	valore1 = wait(&status1);
+	
+	//controllo lo stato di terminazione del processo figlio
+	if(WIFEXITED(status1)){	
+		// WIFEXITED(status)resttuisce vero se il figlio ha terminato volontariamente
+		printf("\nTerminazione volontaria del processo figlio con pid :  %d con stato %d\n",pid,WEXITSTATUS(status1));
+	}
+	
+	if(WIFSIGNALED(status1)){
+		// WIFSIGNALED(status)restituisce vero se il figlio ha terminato invlontariamente
+		printf("\nTerminazione involontaria del processo figlio con pid : %d per segnale %d\n",pid,WTERMSIG(status1));
+		// WTERMSIG(status) contiene il numero dell'interruzione che ha causato la terminazione
+	}
+	/*----------------------------------------------------------------------------------------------------------------------------------------------*/
+	
+	
+	//addormento il padre 
+	sleep(4);
+	
+	
+	/*-------------------------------------------------------- WAIT FIGLIO 2 -----------------------------------------------------------------------*/
+	valore2 = wait(&status2);
+	
+	//controllo lo stato di terminazione del processo figlio
+	if(WIFEXITED(status2)){	
+		// WIFEXITED(status)resttuisce vero se il figlio ha terminato volontariamente
+		printf("\nTerminazione volontaria del processo figlio con pid :  %d con stato %d\n",pid,WEXITSTATUS(status2));
+	}
+	
+	if(WIFSIGNALED(status2)){
+		// WIFSIGNALED(status)restituisce vero se il figlio ha terminato invlontariamente
+		printf("\nTerminazione involontaria del processo figlio con pid : %d per segnale %d\n",pid,WTERMSIG(status2));
+		// WTERMSIG(status) contiene il numero dell'interruzione che ha causato la terminazione
+	}
+	
+	/*-----------------------------------------------------------------------------------------------------------------------------------------------*/
+	
+	
+	printf("\nPadre terminato \n\n");
+
+	return 0;
+}

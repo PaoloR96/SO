@@ -1,0 +1,25 @@
+Semaforo Binario (mutex)
+
+Risolve la mutua esclusione in una parte critica di programma.
+
+due o piu processi possono coperare attraverso l'uso di segnali, in modo che un processo possa sospendersi forzatamente attendendo un segnale per riattivarsi
+usando una variabile semaforo, un processo puo inviare un segnale sul semaforo 's'tramite una procedura signal(s)per ircevere un segnale sul semaforo 's' si esegue la primitiva wait(s), se il segnale non e stato ancora ricevuto il processo si sospende.
+
+Il semaforo è un tipo di dato astratto 's' che incapsula un tipo intero (s.value) una coda (s.queue) che tiene traccia dei processi sospesi, e sono definite le seguenti operazioni:
+
+inizializzazione : ha l'effetto di settare il semaforo ad un vaore non negativo
+wait: che ha l'effetto di decrementare il semaforo
+signal: che incrementa il semaforo
+
+ESEMPIO (SEMPLICE MUTEX): 
+
+immaginiamo di avere due processi che comunicano tramite memoria condivisa (shm), dove la shm è composta da una variabile di tipo intero,
+il primo processo (produttore) genera un valore e lo inserisce nella shm.
+il secondo processo (consumatore) preleva il dato dalla shm.
+
+ma il consumatore non puo accedere mentre il consumatore sta usando la risorsa(shm), analogamente il produttore non puo accedere me tre il consumatore sta prelevando il dato
+qui utilizziamo il mutex(semaforo). Che ci garantisce la mutua esclusione.
+
+inizialmente viene setttao il semaforo a 0 essendo la nostra shm vuota, il prodttore allora puo produrre metre il consumatore deve attendere.
+dopo aver prodotto viene invocata una signal da parte del produttore che incrementa il semaforo a 1, e di conseguenza il consumatore inizialmente in wait puo accedere e prelevare il dato e invocare la signal, 
+che riattiverà in consumatore.

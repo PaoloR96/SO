@@ -1,0 +1,58 @@
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <sys/shm.h>
+#include <sys/sem.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/types.h>
+#include "lib.h"
+
+//gestione dei semafori
+void wait(int id_sem, int num_sem){
+	struct sembuf sem;
+	sem.sem_num = num_sem;
+	sem.sem_flg = 0;
+	sem.sem_op = -1;
+	semop(id_sem, &sem, 1);
+}
+
+void signal(int id_sem ,int num_sem){
+	struct sembuf sem;
+	sem.sem_num = num_sem;
+	sem.sem_flg = 0;
+	sem.sem_op = 1;
+	semop(id_sem, &sem, 1);
+}
+
+//gestione produttori consumatori
+void produttore(int id_sem, Buffer *buffer){
+	
+	//aspetto che ci sia spazio disponibile per cominciare a produrre
+	wait(id_sem, SPAZIO_DISP);
+	
+	//produco il valore e incremento la coda
+	buffer->vettore[buffer->coda] = rand()%120;
+	printf("  valore prodotto [%d]\n",buffer->vettore[buffer->coda]);
+	buffer->coda =++ (buffer->coda)%DIM;	
+	
+	//segnalo che ce un messaggio prodotto
+	signal(id_sem, MSG_DISP);
+}
+
+void consumatore(int id_sem, Buffer *buffer){
+	
+	//aspetto che cia l'unico consumatore apoter entrare nel buffer e aspetto un messaggio disp decrementa i semafori
+	wait(id_sem, MUTEX_CONS);
+	wait(id_sem, MSG_DISP);
+
+	//prelevo il dato
+	printf("	Messaggio letto [%d] da processo <%d>\n",buffer->vettore[buffer->testa],getpid());
+	buffer->vettore[buffer->testa] = 0;
+	buffer->testa =++ (buffer->testa)%DIM;	
+
+	//segnalo che ho finito agli altri consumatori e che ce uno spazio disponibile li incrementa		
+	signal(id_sem, MUTEX_CONS);
+	signal(id_sem, SPAZIO_DISP);
+}

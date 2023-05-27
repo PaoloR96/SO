@@ -1,0 +1,58 @@
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <sys/shm.h>
+#include <sys/sem.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/types.h>
+#include "lib.h"
+
+//gestione dei semafori
+void wait(int id_sem, int num_sem){
+	struct sembuf sem;
+	sem.sem_num = num_sem;
+	sem.sem_flg = 0;
+	sem.sem_op = -1;
+	semop(id_sem, &sem, 1);
+}
+
+void signal(int id_sem ,int num_sem){
+	struct sembuf sem;
+	sem.sem_num = num_sem;
+	sem.sem_flg = 0;
+	sem.sem_op = 1;
+	semop(id_sem, &sem, 1);
+}
+
+//gestione produttori consumatori
+void produttore(int id_sem, Buffer *buffer){
+
+	//prendo metex devo essere l'unico a produrre e decremento lo spazio dip
+	wait(id_sem, SPAZIO_DISP);
+	wait(id_sem, MUTEX_PROD);
+
+	//produco
+	buffer->vettore[buffer->coda] = rand()%120;
+	printf(" valore prodotto [%d]\n",buffer->vettore[buffer->coda]);
+	buffer->coda =++ (buffer->coda)%DIM;	
+
+	//avverto che ho finito e incremento i messaggi disponibili 	
+	signal(id_sem, MUTEX_PROD);
+	signal(id_sem, MSG_DISP);
+}
+
+void consumatore(int id_sem, Buffer *buffer){
+	
+	//attendo che ci sia un messaggio dip per leggerlo sono l'unico consumatore quindi non ho bisogno di mutex_cons
+	wait(id_sem, MSG_DISP);
+
+	//consumo il messaggio nel buffer	
+	printf("   Messaggio letto [%d] da processo <%d>\n",buffer->vettore[buffer->testa],getpid());
+	buffer->vettore[buffer->testa] = 0;
+	buffer->testa =++ (buffer->testa)%DIM;	
+	
+	//segnalo di aver letto il messaggio e in incremento lo spazio disp signal	
+	signal(id_sem, SPAZIO_DISP);
+}

@@ -1,0 +1,63 @@
+/*	 Produttore Consumatore Thread		*/
+
+#include <pthread.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include "thread.h"
+
+int main(){
+
+	//dichiarazione varaibili per thread
+	pthread_attr_t attr;
+	pthread_t threads[NUM_THREADS];
+	
+	//buffer condiviso tra i thread
+	Buffer *buffer;
+	int i;
+
+	printf("\n\n _INIZIO_ \n\n");
+
+	//alloco la memoria che devono usare i thread per comunicare
+	buffer = (Buffer*)malloc(sizeof(Buffer));
+	buffer->dato = 0;
+	buffer->stato = VUOTO;
+
+	//inizializzazione dei thread
+	pthread_mutex_init(&MUTEX,NULL);
+	pthread_cond_init(&OK_CONSUMA,NULL);
+	pthread_cond_init(&OK_PRODUCI,NULL);
+
+	//imposto i thread a joinable
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	
+	//creazione dei thread
+	for(i=0; i<NUM_THREADS; i++){
+		if(i%2 == 0){
+			//Sono Thread Produttore
+			printf("Sono Thread Produttore  con id <%d>\n",i);
+			pthread_create(&threads[i], &attr, Produttore, (void*)buffer);
+		}else{
+			//Sono Thread Consumatore
+			printf("Sono Thread Consumatore con id <%d>\n",i);
+			pthread_create(&threads[i], &attr, Consumatore, (void*)buffer);
+		}
+	}
+
+	//faccio la join con i threads
+	for(i=0; i<NUM_THREADS; i++){
+		pthread_join(threads[i], NULL);	
+		//printf("thread numero <%d> TERMINATO\n", i);
+	}
+	
+	//rimuovo le risorse allocate
+	free(buffer);
+	pthread_mutex_destroy(&MUTEX);
+	pthread_cond_destroy(&OK_CONSUMA);
+	pthread_cond_destroy(&OK_PRODUCI);
+
+	printf("\n\n _FINE_ \n\n");
+
+	return 0;
+}

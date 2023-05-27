@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "mialib.h"
+
+int main(void) {
+
+	Pila pila;
+	
+	printf("inizzializzo la pila \n\n");
+	pila.sp = 0;
+	inizzializza(pila);
+	
+	printf("inserisco valori nella pila \n\n");
+	push(pila,1);
+	push(pila,2);
+	push(pila,3);
+	push(pila,4);
+	push(pila,5);
+	
+	printf("stampo la pila : \n\n");
+	stampa(pila);
+
+	return 0;
+}
+

@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "mialib.h"
+
+int main(void) {
+
+	Pila pila;
+	
+	pila->sp=0;
+
+	push(&pila,1);
+	push(&pila,2);
+	push(&pila,3);
+	push(&pila,4);
+	push(&pila,5);
+
+	stampa(&pila);
+
+	return 0;
+}
+

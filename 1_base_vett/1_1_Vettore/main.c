@@ -1,0 +1,24 @@
+#include <iostream>
+#include <unistd.h>
+#include "miaLib.h" //libreria da me creata e inserita
+using namespace std;
+
+int main(){
+
+	int a[N];	 //vettore a	
+	int n;           //caridnalità del vettore
+
+	cout<<"numero elementi da inserie nel vettore : ";
+	cin>> n;
+	sleep(10);	
+	cout<<"inserisci gli elmenti nel vettore \n\n";
+	leggiVettore(a,n);				//void dichiarata nell miaLib.h
+
+	cout<<"stampo elmenti del vettore \n\n";
+	stampaVettore(a,n);				//void dichiarata nell miaLib.h
+
+	return 0;
+
+	
+
+}

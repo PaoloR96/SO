@@ -1,0 +1,10 @@
+Questo e un esempio di creazione di una shared memory 
+
+comandi utili da shell
+
+ipcs < -m | -s | -q > visualizza tutte le strutture allocate, mostrando identificatore e utente proprietario
+ipcrm < -m | -s | -q > <ipc_id>  rimuove una data struttura passandogli il descrittore (esempio ds_shm)
+
+-m	mostra le shm (shm)
+-s	mostra i semafori (sem)
+-q	mostra i messaggi (msg)
