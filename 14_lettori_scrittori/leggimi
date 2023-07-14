@@ -1,3 +1,0 @@
-Il comportamento rispetto a produttore consumatore varia:
-
-Mentre tra produttore e consumatore bisognava avere accesso in mutua esclusione alla risorsa in questo caso si può avere un accesso da parte di più processi contemporaneamente alla risorsa, e si escudono a vicenda solo su determinate operazioni

@@ -1,1 +1,0 @@
-Abbiamo una risorsa codivisa dove abbiamo più processi che tra loro entrano e fanno operazioni e si escludono uno con altro, se un precesso è presente sulla risorsa non è possibile che sia presente anche l'altro processo.
